@@ -1,0 +1,38 @@
+{
+    "files.encoding": "gb2312",
+    "terminal.integrated.profiles.windows": {
+        "PowerShell": {
+            "source": "PowerShell"
+        },
+        "编译命令": {
+            "path": "powershell.exe",
+            "icon": "tools",
+            "args": [
+                "-NoExit",
+                "-NoProfile",
+                "-ExecutionPolicy",
+                "Bypass",
+                "-File",
+                "${workspaceFolder}/.vscode/menu.ps1"
+            ]
+        }
+    },
+    "clangd.arguments": [
+        "--compile-commands-dir=.vscode"
+    ],
+    "clangd.fallbackFlags": [
+        "--target=arm-none-eabi",
+        "-mcpu=cortex-m3",
+        "-mthumb",
+        "-std=c99",
+        "-DSTM32F103xB",
+        "-DUSE_HAL_DRIVER",
+        "-D__STDC_LIMIT_MACROS",
+        "-I.",
+        "-IUser",
+        "-IDrives",
+        "-IDrives/CMSIS/Include",
+        "-IDrives/CMSIS/Device/ST/STM32F1xx/Include",
+        "-IDrives/STM32F1xx_HAL_Driver/Inc"
+    ]
+}

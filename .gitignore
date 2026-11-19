@@ -1,0 +1,40 @@
+# Keil MDK build outputs
+*.bak
+*.ddk
+*.edk
+*.lst
+*.lnp
+*.mpf
+*.mpj
+*.obj
+*.omf
+*.plg
+*.rpt
+*.tmp
+*.__i
+*.crf
+*.o
+*.d
+*.axf
+*.tra
+*.dep
+*.iex
+*.htm
+*.sct
+*.map
+*.hex
+*.bin
+*.dbgconf
+JLinkLog.txt
+
+# Keil user window layout
+*.uvguix.*
+
+# Build directories
+Projects/Output/
+Projects/MDK-ARM/Listings/
+
+# OS
+Thumbs.db
+Desktop.ini
+.DS_Store
