@@ -31,6 +31,9 @@ JLinkLog.txt
 *.uvguix.*
 
 # Build directories
+build/
+.sconsign.dblite
+*.elf
 Projects/Output/
 Projects/MDK-ARM/Listings/
 

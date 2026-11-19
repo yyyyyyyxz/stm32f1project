@@ -45,7 +45,7 @@ extern uint8_t g_rx_buffer[RXBUFFERSIZE];       /* HAL库UART接收buffer */
 /*----------------------------------------------------------------------------*/
 /*                           FUNCTION DECLARATION                             */
 /*----------------------------------------------------------------------------*/
-void usart_init(uint32_t bound);                /* 串口初始化函数 */
+void Usart_Init(uint32_t bound);                /* 串口初始化函数 */
 
 
 #endif /* __USART_H__ */

@@ -430,6 +430,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\Drives\BSP\KEY\key.c</FilePath>
             </File>
+            <File>
+              <FileName>usart.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Drives\BSP\USART\usart.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -444,11 +449,6 @@
               <FileName>sys.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\Drives\SYSTEM\sys\sys.c</FilePath>
-            </File>
-            <File>
-              <FileName>usart.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\Drives\SYSTEM\usart\usart.c</FilePath>
             </File>
           </Files>
         </Group>

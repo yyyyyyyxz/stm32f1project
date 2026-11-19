@@ -56,7 +56,7 @@ void Device_Init(void)
 		if (DEVICE_KEY)
 			Key_Init();                           /* KEY   Init */
 		if (DEVICE_USART)
-			usart_init(115200);										/* USART Init */
+			Usart_Init(115200);										/* USART Init */
 }
 
 /*----------------------------------------------------------------------------*/

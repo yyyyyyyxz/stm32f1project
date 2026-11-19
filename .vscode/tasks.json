@@ -2,6 +2,41 @@
     "version": "2.0.0",
     "tasks": [
         {
+            "label": "SCons: 编译",
+            "type": "shell",
+            "command": "scons",
+            "args": [
+                "-j8"
+            ],
+            "options": {
+                "cwd": "",
+                "env": {
+                    "ARM_GCC_PATH": "D:\\\\Downloads\\\\App\\\\arm-gnu-toolchain\\\\bin"
+                }
+            },
+            "group": "build",
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared",
+                "focus": true
+            },
+            "problemMatcher": {
+                "owner": "gcc",
+                "fileLocation": [
+                    "relative",
+                    ""
+                ],
+                "pattern": {
+                    "regexp": "^(.*):(\\d+):(\\d+):\\s+(fatal error|error|warning):\\s+(.*)$",
+                    "file": 1,
+                    "line": 2,
+                    "column": 3,
+                    "severity": 4,
+                    "message": 5
+                }
+            }
+        },
+        {
             "label": "Keil: 编译",
             "type": "shell",
             "command": "powershell",
@@ -24,7 +59,10 @@
             },
             "problemMatcher": {
                 "owner": "armcc",
-                "fileLocation": ["relative", "${workspaceFolder}/Projects/MDK-ARM"],
+                "fileLocation": [
+                    "relative",
+                    "${workspaceFolder}/Projects/MDK-ARM"
+                ],
                 "pattern": {
                     "regexp": "^(.*)\\((\\d+)\\):\\s+(error|warning):\\s+(.*)$",
                     "file": 1,
@@ -54,7 +92,10 @@
             },
             "problemMatcher": {
                 "owner": "armcc",
-                "fileLocation": ["relative", "${workspaceFolder}/Projects/MDK-ARM"],
+                "fileLocation": [
+                    "relative",
+                    "${workspaceFolder}/Projects/MDK-ARM"
+                ],
                 "pattern": {
                     "regexp": "^(.*)\\((\\d+)\\):\\s+(error|warning):\\s+(.*)$",
                     "file": 1,
@@ -124,7 +165,10 @@
             },
             "problemMatcher": {
                 "owner": "armcc",
-                "fileLocation": ["relative", "${workspaceFolder}/Projects/MDK-ARM"],
+                "fileLocation": [
+                    "relative",
+                    "${workspaceFolder}/Projects/MDK-ARM"
+                ],
                 "pattern": {
                     "regexp": "^(.*)\\((\\d+)\\):\\s+(error|warning):\\s+(.*)$",
                     "file": 1,
@@ -135,4 +179,4 @@
             }
         }
     ]
-}
+}

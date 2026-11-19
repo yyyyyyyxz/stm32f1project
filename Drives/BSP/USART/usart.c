@@ -16,14 +16,14 @@
 /*                                 INCLUDES                                   */
 /*----------------------------------------------------------------------------*/
 #include "./SYSTEM/sys/sys.h"
-#include "./SYSTEM/usart/usart.h"
+#include "./BSP/USART/usart.h"
 
 /*----------------------------------------------------------------------------*/
 /*                                DECLARATION                                 */
 /*----------------------------------------------------------------------------*/
 /* 加入以下代码, 支持printf函数, 而不需要选择use MicroLIB */
 
-#if 1
+#if defined(__CC_ARM) || defined(__ARMCC_VERSION)
 
 #if (__ARMCC_VERSION >= 6010050)            /* 使用AC6编译器时 */
 __asm(".global __use_no_semihosting\n\t");  /* 声明不使用半主机模式 */
@@ -75,6 +75,21 @@ int fputc(int ch, FILE *f)
 }
 #endif
 
+#if defined(__GNUC__)
+int _write(int file, char *ptr, int len)
+{
+    int i;
+
+    (void)file;
+    for (i = 0; i < len; i++)
+    {
+        while ((USART_UX->SR & 0x40) == 0);
+        USART_UX->DR = (uint8_t)ptr[i];
+    }
+    return len;
+}
+#endif
+
 /*----------------------------------------------------------------------------*/
 /*                                   DATA                                     */
 /*----------------------------------------------------------------------------*/
@@ -106,7 +121,7 @@ UART_HandleTypeDef UART_InitStruct;  /* UART句柄（UART结构体初始化） *
  * 说明: 必须设置正确的时钟源, 否则串口波特率就会不正常.
  *       这里使用的USART的时钟源在 SystemClock_Config() 函数中已经设置过了
  */
-void usart_init(uint32_t baudrate)
+void Usart_Init(uint32_t baudrate)
 {
     /*UART 初始化设置*/
     UART_InitStruct.Instance = USART_UX;                                       /* USART_UX */
