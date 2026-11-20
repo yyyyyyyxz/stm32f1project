@@ -28,6 +28,11 @@ if (-not (Test-Path $LogDir)) {
     New-Item -ItemType Directory -Path $LogDir | Out-Null
 }
 
+python (Join-Path $PSScriptRoot "gen_compile_db.py")
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "更新 compile_commands.json 失败"
+}
+
 function Invoke-Keil {
     param(
         [Parameter(Mandatory = $true)][string]$Flag,

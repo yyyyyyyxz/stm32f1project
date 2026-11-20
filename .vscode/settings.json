@@ -18,7 +18,8 @@
         }
     },
     "clangd.arguments": [
-        "--compile-commands-dir=.vscode"
+        "--compile-commands-dir=.vscode",
+        "--query-driver=D:/App/arm-gnu-toolchain/bin/arm-none-eabi-gcc.exe"
     ],
     "clangd.fallbackFlags": [
         "--target=arm-none-eabi",
@@ -33,7 +34,11 @@
         "-IDrives",
         "-IDrives/CMSIS/Include",
         "-IDrives/CMSIS/Device/ST/STM32F1xx/Include",
-        "-IDrives/STM32F1xx_HAL_Driver/Inc"
+        "-IDrives/STM32F1xx_HAL_Driver/Inc",
+        "-isystem",
+        "D:/App/arm-gnu-toolchain/arm-none-eabi/include",
+        "-isystem",
+        "D:/App/arm-gnu-toolchain/lib/gcc/arm-none-eabi/15.2.1/include"
     ],
     "terminal.integrated.env.windows": {
         "ARM_GCC_PATH": "D:\\\\App\\\\arm-gnu-toolchain\\\\bin",

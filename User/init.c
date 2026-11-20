@@ -57,6 +57,10 @@ void Device_Init(void)
 			Key_Init();                           /* KEY   Init */
 		if (DEVICE_USART)
 			Usart_Init(115200);										/* USART Init */
+		if (DEVICE_OLED)
+			Oled_Init();                           /* OLED  Init */
+		if (DEVICE_OLED_I2C)
+			Oled_I2c_Init();                       /* OLED_I2C Init */
 }
 
 /*----------------------------------------------------------------------------*/

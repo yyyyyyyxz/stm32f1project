@@ -1,32 +1,54 @@
 import os
+import subprocess
+import sys
+
+subprocess.run(
+    [sys.executable, os.path.join(".vscode", "gen_compile_db.py")],
+    check=False,
+)
 
 PROJECT = "Led"
 BUILD_DIR = "build"
 OUTPUT_DIR = os.path.join("Projects", "Output")
 LDSCRIPT = os.path.join("Projects", "gcc", "STM32F103C8Tx_FLASH.ld")
 
-SOURCES = [
-    "User/main.c",
-    "User/init.c",
-    "User/stm32f1xx_it.c",
+FIXED_SOURCES = [
     "Drives/CMSIS/Device/ST/STM32F1xx/Source/Templates/system_stm32f1xx.c",
     "Drives/CMSIS/Device/ST/STM32F1xx/Source/Templates/gcc/startup_stm32f103xb.s",
-    "Drives/BSP/LED/led.c",
-    "Drives/BSP/KEY/key.c",
-    "Drives/BSP/USART/usart.c",
-    "Drives/SYSTEM/delay/delay.c",
-    "Drives/SYSTEM/sys/sys.c",
-    "Drives/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal.c",
-    "Drives/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_cortex.c",
-    "Drives/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_dma.c",
-    "Drives/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_gpio.c",
-    "Drives/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_gpio_ex.c",
-    "Drives/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_rcc.c",
-    "Drives/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_rcc_ex.c",
-    "Drives/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_uart.c",
-    "Drives/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_usart.c",
     "Projects/gcc/syscalls.c",
 ]
+
+AUTO_DIRS = [
+    "User",
+    "Drives/BSP",
+    "Drives/SYSTEM",
+    "Drives/STM32F1xx_HAL_Driver/Src",
+]
+
+
+def collect_sources(root):
+    found = []
+    if not os.path.isdir(root):
+        return found
+    for dirpath, dirnames, filenames in os.walk(root):
+        dirnames[:] = [name for name in dirnames if name.lower() != "legacy"]
+        for name in filenames:
+            lower = name.lower()
+            if not lower.endswith((".c", ".s")):
+                continue
+            if "template" in lower:
+                continue
+            if "stm32f1xx_hal_driver" in dirpath.replace("\\", "/").lower():
+                if not lower.startswith("stm32f1xx_hal"):
+                    continue
+            found.append(os.path.join(dirpath, name).replace("\\", "/"))
+    found.sort()
+    return found
+
+
+SOURCES = list(FIXED_SOURCES)
+for folder in AUTO_DIRS:
+    SOURCES.extend(collect_sources(folder))
 
 CPPPATH = [
     "User",

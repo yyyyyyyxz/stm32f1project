@@ -14,7 +14,9 @@
 #include "./BSP/LED/led.h"
 #include "./BSP/KEY/key.h"
 #include "./BSP/USART/usart.h"
-#include "string.h"
+#include "./BSP/OLED/oled.h"
+#include "./BSP/OLED/oled_i2c.h"
+#include <string.h>
 
 /*----------------------------------------------------------------------------*/
 /*                                   DATA                                     */
@@ -24,9 +26,11 @@
 #define DISABLE                 0
 
 /* 设备使能管理，0为不使能，1为使能 */
-#define DEVICE_LED              1
-#define DEVICE_KEY              0
-#define DEVICE_USART            0
+#define DEVICE_LED              ENABLE
+#define DEVICE_KEY              DISABLE
+#define DEVICE_USART            DISABLE
+#define DEVICE_OLED             DISABLE
+#define DEVICE_OLED_I2C         DISABLE
 
 /*----------------------------------------------------------------------------*/
 /*                           FUNCTION DECLARATION                             */
