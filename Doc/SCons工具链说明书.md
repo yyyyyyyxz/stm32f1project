@@ -19,12 +19,12 @@
 | --- | --- |
 | SCons | `C:\Users\27443\AppData\Local\Python\pythoncore-3.14-64\Scripts\scons.exe` |
 | SCons 的 cmd 包装 | `C:\Users\27443\AppData\Local\Python\bin\scons.cmd` |
-| 单独安装的 ARM GCC 15.2.1 | `D:\Downloads\App\arm-gnu-toolchain\bin` |
+| 单独安装的 ARM GCC 15.2.1 | `D:\App\arm-gnu-toolchain\bin` |
 | RT-Thread Env | `D:\App\env_release\env-windows` |
 | Env 自带的 ARM GCC | `D:\App\env_release\env-windows\tools\gnu_gcc\arm_gcc\mingw\bin` |
 | Env 虚拟环境里的 SCons | `D:\App\env_release\env-windows\.venv\Scripts` |
 
-本工程现在用的是单独安装的那套 ARM GCC。`SConstruct` 先看 `ARM_GCC_PATH`，工程终端里已经把它设成 `D:\Downloads\App\arm-gnu-toolchain\bin`。
+本工程现在用的是单独安装的那套 ARM GCC。`SConstruct` 先看 `ARM_GCC_PATH`，工程终端里已经把它设成 `D:\App\arm-gnu-toolchain\bin`。
 
 ## 做法一：用 RT-Thread Env 终端
 
@@ -73,7 +73,7 @@ python -m SCons --version
 
 需要带 `arm-none-eabi-gcc`、`arm-none-eabi-objcopy`、`arm-none-eabi-size` 的 Windows 工具链。本机使用的是 xPack GNU Arm Embedded GCC 15.2.1，解压后的 `bin` 放在：
 
-`D:\Downloads\App\arm-gnu-toolchain\bin`
+`D:\App\arm-gnu-toolchain\bin`
 
 换目录时保持这个结构：`某个目录\bin\arm-none-eabi-gcc.exe`。然后把该 `bin` 目录设为环境变量 `ARM_GCC_PATH`。`SConstruct` 认的是目录，不是 `gcc.exe` 的完整路径。
 
@@ -90,7 +90,7 @@ python -m SCons --version
 这项里要同时有：
 
 - `PATH` 最前面带上 `Scripts` 目录和 `C:\Users\27443\AppData\Local\Python\bin`
-- `ARM_GCC_PATH` 指向 `D:\Downloads\App\arm-gnu-toolchain\bin`
+- `ARM_GCC_PATH` 指向 `D:\App\arm-gnu-toolchain\bin`
 
 改完后关掉当前终端，新开一个。已经存在的终端继续用旧环境。
 
@@ -102,7 +102,7 @@ Env 终端是后执行 `vscode-env.ps1` 的，它会在这个 PATH 前面再接�
 
 1. `ARM_GCC_PATH`
 2. `RTT_EXEC_PATH`
-3. `D:\Downloads\App\arm-gnu-toolchain\bin`
+3. `D:\App\arm-gnu-toolchain\bin`
 4. 当前进程的 PATH
 
 工程终端设置了 `ARM_GCC_PATH` 时，用的是单独安装的 15.2.1，不会用到 Env 自带的 GCC。要改回 Env 自带的编译器，去掉 `ARM_GCC_PATH`，保留 `RTT_EXEC_PATH`。
@@ -124,7 +124,7 @@ scons -j8
 只想确认编译器被哪一处选中，看 `scons -j8` 打印的第一条命令。它应类似：
 
 ```text
-D:\Downloads\App\arm-gnu-toolchain\bin\arm-none-eabi-gcc.exe -mcpu=cortex-m3 ...
+D:\App\arm-gnu-toolchain\bin\arm-none-eabi-gcc.exe -mcpu=cortex-m3 ...
 ```
 
 路径若是 `env-windows\tools\gnu_gcc\...`，说明当前用的是 Env 自带的 GCC。

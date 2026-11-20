@@ -68,7 +68,7 @@ def find_gcc_bin():
     candidates = [
         os.environ.get("ARM_GCC_PATH", ""),
         os.environ.get("RTT_EXEC_PATH", ""),
-        r"D:\Downloads\App\arm-gnu-toolchain\bin",
+        r"D:\App\arm-gnu-toolchain\bin",
     ]
     candidates.extend(os.environ.get("PATH", "").split(os.pathsep))
     for path in candidates:

@@ -10,7 +10,7 @@
 | --- | --- | --- |
 | Python 3 | 运行 SCons | `C:\Users\27443\AppData\Local\Python\pythoncore-3.14-64` |
 | SCons | 读 `SConstruct` 并调度编译 | `...\pythoncore-3.14-64\Scripts\scons.exe` |
-| ARM GCC | 交叉编译 Cortex-M3 | `D:\Downloads\App\arm-gnu-toolchain\bin` |
+| ARM GCC | 交叉编译 Cortex-M3 | `D:\App\arm-gnu-toolchain\bin` |
 
 在工程根目录执行：
 
@@ -26,7 +26,7 @@ Cursor 集成终端的 PATH 由 `.vscode/settings.json` 里的 `terminal.integra
 
 1. 环境变量 `ARM_GCC_PATH`（指向 `bin` 目录）
 2. 环境变量 `RTT_EXEC_PATH`
-3. `D:\Downloads\App\arm-gnu-toolchain\bin`
+3. `D:\App\arm-gnu-toolchain\bin`
 4. 当前进程的 `PATH`
 
 工程终端里已经设置了 `ARM_GCC_PATH`，所以会优先用这一处。换电脑或换安装目录时，改环境变量即可，不必改脚本里的固定路径。找不到编译器时脚本会退出，并提示设置 `ARM_GCC_PATH`。
