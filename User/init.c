@@ -38,9 +38,9 @@
  */
 void System_Init(void)
 {
-    HAL_Init();                                         /* HAL       Init */
-    SystemClock_Config(RCC_PLL_MUL9);                   /* System    Init */
-    Delay_Init((uint16_t)(SystemCoreClock / 1000000U)); /* Delays    Init */
+    HAL_Init();                                           /* HAL       Init */
+    SystemClock_Config(RCC_PLL_MUL9);                  	  /* System    Init */
+    Delay_Init((uint16_t)(SystemCoreClock / 1000000U)); 	/* Delays    Init */
 }
 
 /**
@@ -52,15 +52,16 @@ void System_Init(void)
 void Device_Init(void)
 {
 		if (DEVICE_LED)
-			Led_Init();                           /* LED   Init */
+			Led_Init();                            /* LED   Init */
 		if (DEVICE_KEY)
-			Key_Init();                           /* KEY   Init */
+			Key_Init();                            /* KEY   Init */
 		if (DEVICE_USART)
-			Usart_Init(115200);										/* USART Init */
+			Usart_Init(115200);			   						 /* USART Init */
 		if (DEVICE_OLED)
-			Oled_Init();                           /* OLED  Init */
-		if (DEVICE_OLED_I2C)
-			Oled_I2c_Init();                       /* OLED_I2C Init */
+		{
+			Oled_Init(OLED_MODE_SOFT, OLED_SOFT_SCL_Pin, OLED_SOFT_SDA_Pin);
+			Oled_Init(OLED_MODE_HARD, OLED_HARD_SCL_Pin, OLED_HARD_SDA_Pin);
+		}
 }
 
 /*----------------------------------------------------------------------------*/

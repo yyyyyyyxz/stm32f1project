@@ -14,20 +14,30 @@
 /*----------------------------------------------------------------------------*/
 /*                                   DATA                                     */
 /*----------------------------------------------------------------------------*/
-/* 引脚定义。软件 I2C，可改成任意 GPIO，不必是硬件 I2C 引脚 */
-#define OLED_SCL_Pin                 GPIO_PIN_8
-#define OLED_SCL_GPIO_Port           GPIOB
-#define OLED_SCL_GPIO_CLK_ENABLE()   __HAL_RCC_GPIOB_CLK_ENABLE()
+/* 传给 Oled_Init 的总线类型。同一端口上换一对引脚就是另一块屏 */
+#define OLED_MODE_SOFT               0
+#define OLED_MODE_HARD               1
+#define OLED_SCREEN_MAX              4U
 
-#define OLED_SDA_Pin                 GPIO_PIN_9
-#define OLED_SDA_GPIO_Port           GPIOB
-#define OLED_SDA_GPIO_CLK_ENABLE()   __HAL_RCC_GPIOB_CLK_ENABLE()
+/* 引脚都在这个端口上。软件 I2C 可任选两脚，硬件 I2C 只能用芯片规定的脚 */
+#define OLED_SCL_GPIO_Port               GPIOB
+#define OLED_SCL_GPIO_CLK_ENABLE()       __HAL_RCC_GPIOB_CLK_ENABLE()
+#define OLED_SDA_GPIO_Port               GPIOB
+#define OLED_SDA_GPIO_CLK_ENABLE()       __HAL_RCC_GPIOB_CLK_ENABLE()
+#define OLED_LOW                         GPIO_PIN_RESET
+#define OLED_HIGH                        GPIO_PIN_SET
+#define OLED_PIN(pin, a)                 HAL_GPIO_WritePin(OLED_GPIO_Port, (pin), (a))
 
-/* 电平宏，用法与 LED1(a) 相同 */
-#define OLED_LOW                     GPIO_PIN_RESET
-#define OLED_HIGH                    GPIO_PIN_SET
-#define OLED_SCL(a)                  HAL_GPIO_WritePin(OLED_SCL_GPIO_Port, OLED_SCL_Pin, (a))
-#define OLED_SDA(a)                  HAL_GPIO_WritePin(OLED_SDA_GPIO_Port, OLED_SDA_Pin, (a))
+#define OLED_SOFT_SCL_Pin                GPIO_PIN_8
+#define OLED_SOFT_SDA_Pin                GPIO_PIN_9
+#define OLED_HARD_SCL_Pin                GPIO_PIN_6
+#define OLED_HARD_SDA_Pin                GPIO_PIN_7
+
+#define OLED_I2C1_CLK_ENABLE()           __HAL_RCC_I2C1_CLK_ENABLE()
+#define OLED_I2C2_CLK_ENABLE()           __HAL_RCC_I2C2_CLK_ENABLE()
+#define OLED_AFIO_CLK_ENABLE()           __HAL_RCC_AFIO_CLK_ENABLE()
+#define OLED_I2C_SPEED                   400000U
+#define OLED_I2C_TIMEOUT                 100U
 
 /* 屏幕与 SSD1306 命令。改分辨率或器件地址只改这里 */
 #define OLED_WIDTH                   128U
@@ -61,7 +71,7 @@
 /*----------------------------------------------------------------------------*/
 /*                           FUNCTION DECLARATION                             */
 /*----------------------------------------------------------------------------*/
-void Oled_Init(void);
+void Oled_Init(uint8_t mode, uint16_t scl_pin, uint16_t sda_pin);
 void Oled_Clear(void);
 void Oled_Refresh(void);
 void Oled_Display(uint8_t sw);

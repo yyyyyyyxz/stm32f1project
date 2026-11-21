@@ -15,7 +15,6 @@
 #include "./BSP/KEY/key.h"
 #include "./BSP/USART/usart.h"
 #include "./BSP/OLED/oled.h"
-#include "./BSP/OLED/oled_i2c.h"
 #include <string.h>
 
 /*----------------------------------------------------------------------------*/
@@ -30,7 +29,6 @@
 #define DEVICE_KEY              DISABLE
 #define DEVICE_USART            DISABLE
 #define DEVICE_OLED             DISABLE
-#define DEVICE_OLED_I2C         DISABLE
 
 /*----------------------------------------------------------------------------*/
 /*                           FUNCTION DECLARATION                             */
