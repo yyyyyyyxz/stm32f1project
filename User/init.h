@@ -25,10 +25,14 @@
 #define DISABLE                 0
 
 /* 设备使能管理，0为不使能，1为使能 */
-#define DEVICE_LED              ENABLE
+#define DEVICE_LED              DISABLE
 #define DEVICE_KEY              DISABLE
 #define DEVICE_USART            DISABLE
-#define DEVICE_OLED             DISABLE
+
+/* 软件/硬件 I2C 各自开关。OLED_MODE_SOFT、OLED_MODE_HARD 是总线类型，不能拿来当开关 */
+#define DEVICE_OLED             ENABLE
+#define DEVICE_OLED_SOFT        ENABLE
+#define DEVICE_OLED_HARD        DISABLE
 
 /*----------------------------------------------------------------------------*/
 /*                           FUNCTION DECLARATION                             */

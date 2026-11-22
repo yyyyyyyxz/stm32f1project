@@ -59,8 +59,10 @@ void Device_Init(void)
 			Usart_Init(115200);			   						 /* USART Init */
 		if (DEVICE_OLED)
 		{
-			Oled_Init(OLED_MODE_SOFT, OLED_SOFT_SCL_Pin, OLED_SOFT_SDA_Pin);
-			Oled_Init(OLED_MODE_HARD, OLED_HARD_SCL_Pin, OLED_HARD_SDA_Pin);
+			if (DEVICE_OLED_SOFT)
+				Oled_Init(OLED_MODE_SOFT, OLED_SOFT_SCL_Pin, OLED_SOFT_SDA_Pin);
+			if (DEVICE_OLED_HARD)
+				Oled_Init(OLED_MODE_HARD, OLED_HARD_SCL_Pin, OLED_HARD_SDA_Pin);
 		}
 }
 

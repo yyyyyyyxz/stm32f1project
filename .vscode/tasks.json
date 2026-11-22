@@ -11,7 +11,7 @@
             "options": {
                 "cwd": "",
                 "env": {
-                    "ARM_GCC_PATH": "D:\\\\App\\\\arm-gnu-toolchain\\\\bin"
+                    "ARM_GCC_PATH": "D:\\\\Downloads\\\\App\\\\arm-gnu-toolchain\\\\bin"
                 }
             },
             "group": "build",

@@ -7,7 +7,7 @@
  * Author      : yyyyyyyxz@gmail.com
  * Update date : 2026.11.21
  *-----------------------------------------------------------------------------
- * Note        : Oled_Init(mode, scl, sda) 登记一块屏。引脚在 OLED_GPIO_Port。
+ * Note        : Oled_Init(mode, scl, sda) 登记一块屏。SCL、SDA 用各自的端口。
  *               软件 I2C 可任选两脚。硬件 I2C 只认 PB6/PB7、PB8/PB9、PB10/PB11。
  *               多块屏共用显存，刷新时逐块送出。
  *
@@ -94,12 +94,12 @@ static void oled_delay(void)
  */
 static void oled_start(const OledLink *link)
 {
-    OLED_PIN(link->sda_pin, OLED_HIGH);
-    OLED_PIN(link->scl_pin, OLED_HIGH);
+    OLED_SDA_PIN(link->sda_pin, OLED_HIGH);
+    OLED_SCL_PIN(link->scl_pin, OLED_HIGH);
     oled_delay();
-    OLED_PIN(link->sda_pin, OLED_LOW);
+    OLED_SDA_PIN(link->sda_pin, OLED_LOW);
     oled_delay();
-    OLED_PIN(link->scl_pin, OLED_LOW);
+    OLED_SCL_PIN(link->scl_pin, OLED_LOW);
     oled_delay();
 }
 
@@ -111,10 +111,10 @@ static void oled_start(const OledLink *link)
  */
 static void oled_stop(const OledLink *link)
 {
-    OLED_PIN(link->sda_pin, OLED_LOW);
-    OLED_PIN(link->scl_pin, OLED_HIGH);
+    OLED_SDA_PIN(link->sda_pin, OLED_LOW);
+    OLED_SCL_PIN(link->scl_pin, OLED_HIGH);
     oled_delay();
-    OLED_PIN(link->sda_pin, OLED_HIGH);
+    OLED_SDA_PIN(link->sda_pin, OLED_HIGH);
 }
 
 /**
@@ -125,11 +125,11 @@ static void oled_stop(const OledLink *link)
  */
 static void oled_wait_ack(const OledLink *link)
 {
-    OLED_PIN(link->sda_pin, OLED_HIGH);
+    OLED_SDA_PIN(link->sda_pin, OLED_HIGH);
     oled_delay();
-    OLED_PIN(link->scl_pin, OLED_HIGH);
+    OLED_SCL_PIN(link->scl_pin, OLED_HIGH);
     oled_delay();
-    OLED_PIN(link->scl_pin, OLED_LOW);
+    OLED_SCL_PIN(link->scl_pin, OLED_LOW);
     oled_delay();
 }
 
@@ -147,16 +147,16 @@ static void oled_write_byte(const OledLink *link, uint8_t data)
     {
         if ((data & 0x80U) != 0U)
         {
-            OLED_PIN(link->sda_pin, OLED_HIGH);
+            OLED_SDA_PIN(link->sda_pin, OLED_HIGH);
         }
         else
         {
-            OLED_PIN(link->sda_pin, OLED_LOW);
+            OLED_SDA_PIN(link->sda_pin, OLED_LOW);
         }
         oled_delay();
-        OLED_PIN(link->scl_pin, OLED_HIGH);
+        OLED_SCL_PIN(link->scl_pin, OLED_HIGH);
         oled_delay();
-        OLED_PIN(link->scl_pin, OLED_LOW);
+        OLED_SCL_PIN(link->scl_pin, OLED_LOW);
         data <<= 1;
     }
 }
@@ -268,20 +268,91 @@ static OledLink *oled_link_get(uint8_t mode, uint16_t scl_pin, uint16_t sda_pin)
 }
 
 /**
+ * 功能: 等待 I2C 状态位，或等到超时
+ * 参数: reg 状态寄存器，mask 要等的位，spin 轮询次数
+ * 返回: 1 等到，0 超时
+ * 说明: 不依赖 SysTick，仿真里标志迟到时不会卡死
+ */
+static uint8_t oled_i2c_wait(const volatile uint32_t *reg, uint32_t mask, uint32_t spin)
+{
+    while (((*reg & mask) == 0U) && (spin != 0U))
+    {
+        spin--;
+    }
+    return (uint8_t)(spin != 0U);
+}
+
+/**
+ * 功能: 硬件 I2C 发出一个字节，没有应答也继续
+ * 参数: i2c 外设，byte 要发送的字节
+ * 返回: None
+ * 说明: Proteus 的 OLED12864 模型不拉低 ACK，HAL 会因此中止
+ */
+static void oled_i2c_put(I2C_TypeDef *i2c, uint8_t byte)
+{
+    if (oled_i2c_wait(&i2c->SR1, I2C_SR1_TXE | I2C_SR1_BTF | I2C_SR1_AF, 100000U) == 0U)
+    {
+        return;
+    }
+    if ((i2c->SR1 & I2C_SR1_AF) != 0U)
+    {
+        i2c->SR1 &= (uint16_t)~I2C_SR1_AF;
+    }
+    i2c->DR = byte;
+}
+
+/**
  * 功能: 硬件 I2C 写命令或数据
  * 参数: link 目标屏，ctrl 为 OLED_CTRL_CMD 或 OLED_CTRL_DATA
  * 返回: None
- * 说明: 控制字节作为 Mem 地址发出
+ * 说明: 由 I2C 外设产生时钟。从机不应答时清掉 AF，仍把后续字节送出
  */
 static void oled_hard_write(OledLink *link, uint8_t ctrl, const uint8_t *data, uint16_t len)
 {
-    (void)HAL_I2C_Mem_Write(&link->i2c,
-                            OLED_I2C_ADDR,
-                            ctrl,
-                            I2C_MEMADD_SIZE_8BIT,
-                            (uint8_t *)data,
-                            len,
-                            OLED_I2C_TIMEOUT);
+    I2C_TypeDef *i2c;
+    uint32_t spin;
+    uint16_t i;
+
+    if ((data == NULL) || (len == 0U) || (len > OLED_WIDTH) || (link->i2c.Instance == NULL))
+    {
+        return;
+    }
+
+    i2c = link->i2c.Instance;
+    spin = 100000U;
+    while (((i2c->SR2 & I2C_SR2_BUSY) != 0U) && (spin != 0U))
+    {
+        spin--;
+    }
+
+    i2c->CR1 |= I2C_CR1_ACK;
+    i2c->CR1 |= I2C_CR1_START;
+    if (oled_i2c_wait(&i2c->SR1, I2C_SR1_SB, 100000U) == 0U)
+    {
+        i2c->CR1 |= I2C_CR1_STOP;
+        return;
+    }
+
+    i2c->DR = OLED_I2C_ADDR;
+    (void)oled_i2c_wait(&i2c->SR1, I2C_SR1_ADDR | I2C_SR1_AF, 100000U);
+    if ((i2c->SR1 & I2C_SR1_AF) != 0U)
+    {
+        i2c->SR1 &= (uint16_t)~I2C_SR1_AF;
+    }
+    (void)i2c->SR1;
+    (void)i2c->SR2;
+
+    oled_i2c_put(i2c, ctrl);
+    for (i = 0U; i < len; i++)
+    {
+        oled_i2c_put(i2c, data[i]);
+    }
+    (void)oled_i2c_wait(&i2c->SR1, I2C_SR1_BTF | I2C_SR1_TXE | I2C_SR1_AF, 100000U);
+    if ((i2c->SR1 & I2C_SR1_AF) != 0U)
+    {
+        i2c->SR1 &= (uint16_t)~I2C_SR1_AF;
+    }
+    i2c->CR1 |= I2C_CR1_STOP;
 }
 
 /**
@@ -497,7 +568,7 @@ static void oled_show_ascii(uint8_t x, uint8_t y, char ch, uint8_t size)
  * 功能: 初始化一块 OLED
  * 参数: mode 为 OLED_MODE_SOFT 或 OLED_MODE_HARD，scl_pin、sda_pin 为 SCL 和 SDA
  * 返回: None
- * 说明: 每对引脚一块屏，最多 OLED_SCREEN_MAX 块。端口是 OLED_GPIO_Port
+ * 说明: 每对引脚一块屏，最多 OLED_SCREEN_MAX 块。SCL、SDA 使用各自的端口
  */
 void Oled_Init(uint8_t mode, uint16_t scl_pin, uint16_t sda_pin)
 {
@@ -525,27 +596,35 @@ void Oled_Init(uint8_t mode, uint16_t scl_pin, uint16_t sda_pin)
     link->mode = mode;
     link->scl_pin = scl_pin;
     link->sda_pin = sda_pin;
-    OLED_GPIO_CLK_ENABLE();
+    OLED_SCL_GPIO_CLK_ENABLE();
+    OLED_SDA_GPIO_CLK_ENABLE();
 
-    gpio.Pin = scl_pin | sda_pin;
     gpio.Pull = GPIO_PULLUP;
     gpio.Speed = GPIO_SPEED_FREQ_HIGH;
     if (mode == OLED_MODE_SOFT)
     {
         gpio.Mode = GPIO_MODE_OUTPUT_OD;
-        HAL_GPIO_Init(OLED_GPIO_Port, &gpio);
-        OLED_PIN(scl_pin, OLED_HIGH);
-        OLED_PIN(sda_pin, OLED_HIGH);
+        gpio.Pin = scl_pin;
+        HAL_GPIO_Init(OLED_SCL_GPIO_Port, &gpio);
+        gpio.Pin = sda_pin;
+        HAL_GPIO_Init(OLED_SDA_GPIO_Port, &gpio);
+        OLED_SCL_PIN(scl_pin, OLED_HIGH);
+        OLED_SDA_PIN(sda_pin, OLED_HIGH);
     }
     else
     {
         gpio.Mode = GPIO_MODE_AF_OD;
-        HAL_GPIO_Init(OLED_GPIO_Port, &gpio);
+        gpio.Pin = scl_pin;
+        HAL_GPIO_Init(OLED_SCL_GPIO_Port, &gpio);
+        gpio.Pin = sda_pin;
+        HAL_GPIO_Init(OLED_SDA_GPIO_Port, &gpio);
 
         if (inst == I2C1)
         {
             OLED_AFIO_CLK_ENABLE();
             OLED_I2C1_CLK_ENABLE();
+            __HAL_RCC_I2C1_FORCE_RESET();
+            __HAL_RCC_I2C1_RELEASE_RESET();
             if ((scl_pin == GPIO_PIN_8) && (sda_pin == GPIO_PIN_9))
             {
                 __HAL_AFIO_REMAP_I2C1_ENABLE();

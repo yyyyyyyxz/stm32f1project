@@ -38,12 +38,13 @@
  */
 int main(void)
 {
-		System_Init();    /* 系统初始化 */
+		System_Init();      /* 系统初始化 */
 		Device_Init();		/* 设备初始化 */
+    Oled_ShowString(0,0,"Hello, World!", 16);
 
     while(1)
     {
-        LED1_TURN();
+
         Delay_ms(1000);
     }
 }
