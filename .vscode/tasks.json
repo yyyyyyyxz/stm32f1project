@@ -9,10 +9,7 @@
                 "-j8"
             ],
             "options": {
-                "cwd": "",
-                "env": {
-                    "ARM_GCC_PATH": "D:\\\\Downloads\\\\App\\\\arm-gnu-toolchain\\\\bin"
-                }
+                "cwd": ""
             },
             "group": "build",
             "presentation": {

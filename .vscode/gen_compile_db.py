@@ -1,9 +1,14 @@
 """Write .vscode/compile_commands.json for the current project."""
 import json
 import os
+import sys
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-GCC = "D:/Downloads/App/arm-gnu-toolchain/bin/arm-none-eabi-gcc.exe"
+sys.path.insert(0, ROOT)
+
+import find_gcc
+
+GCC = find_gcc.find_gcc_exe(ROOT)
 
 INCLUDES = [
     ROOT,
@@ -46,8 +51,12 @@ def collect_sources():
 
 
 def main():
+    if not GCC:
+        print("找不到 arm-none-eabi-gcc。请把它加入 PATH，或设置环境变量 ARM_GCC_PATH。")
+        return 1
+
     flags = [
-        GCC,
+        to_posix(GCC),
         "-mcpu=cortex-m3",
         "-mthumb",
         "-mfloat-abi=soft",
@@ -74,7 +83,8 @@ def main():
         json.dump(entries, handle, indent=4)
         handle.write("\n")
     print("compile_commands.json: %d files" % len(entries))
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

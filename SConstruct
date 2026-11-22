@@ -2,6 +2,8 @@ import os
 import subprocess
 import sys
 
+import find_gcc
+
 subprocess.run(
     [sys.executable, os.path.join(".vscode", "gen_compile_db.py")],
     check=False,
@@ -85,26 +87,9 @@ ASFLAGS = [
 ]
 
 
-def find_gcc_bin():
-    names = ("arm-none-eabi-gcc.exe", "arm-none-eabi-gcc")
-    candidates = [
-        os.environ.get("ARM_GCC_PATH", ""),
-        os.environ.get("RTT_EXEC_PATH", ""),
-        r"D:\Downloads\App\arm-gnu-toolchain\bin",
-    ]
-    candidates.extend(os.environ.get("PATH", "").split(os.pathsep))
-    for path in candidates:
-        if not path:
-            continue
-        for name in names:
-            if os.path.isfile(os.path.join(path, name)):
-                return path
-    return None
-
-
-gcc_bin = find_gcc_bin()
+gcc_bin = find_gcc.find_gcc_bin()
 if not gcc_bin:
-    print("找不到 arm-none-eabi-gcc。请安装 ARM GCC，或设置环境变量 ARM_GCC_PATH。")
+    print("找不到 arm-none-eabi-gcc。请把它加入 PATH，或设置环境变量 ARM_GCC_PATH。")
     Exit(1)
 
 gcc = os.path.join(gcc_bin, "arm-none-eabi-gcc.exe")

@@ -30,6 +30,9 @@ JLinkLog.txt
 # Keil user window layout
 *.uvguix.*
 
+# Generated on each machine; contains that machine's compiler path
+.vscode/compile_commands.json
+
 # Build directories
 build/
 .sconsign.dblite
