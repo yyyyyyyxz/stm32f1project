@@ -16,6 +16,7 @@
 /*                                 INCLUDES                                   */
 /*----------------------------------------------------------------------------*/
 #include "init.h"
+#include "app.h"
 
 /*----------------------------------------------------------------------------*/
 /*                                DECLARATION                                 */
@@ -38,14 +39,13 @@
  */
 int main(void)
 {
-		System_Init();      /* 系统初始化 */
-		Device_Init();		/* 设备初始化 */
-    Oled_ShowString(0,0,"Hello, World!", 16);
+    System_Init();
+    Device_Init();
+    App_Init();
 
-    while(1)
+    while (1)
     {
-
-        Delay_ms(1000);
+        App_Poll();
     }
 }
 

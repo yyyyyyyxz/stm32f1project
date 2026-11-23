@@ -5,10 +5,10 @@
  * File name   : usart.c
  * Description : 串口初始化代码(一般串口1)，支持printf
  * Author      : yyyyyyyxz@gmail.com
- * Update date : 2026.11.9
+ * Update date : 2026.11.23
  *-----------------------------------------------------------------------------
- * Note        :
- *
+ * Note        : 串口1仍走 HAL。串口2、串口3按寄存器初始化，避免和串口1的 MspInit 缠在一起。
+ *               串口2、串口3挂在 APB1。
  *
 **/
 
@@ -231,6 +231,106 @@ void USART_UX_IRQHandler(void)
 }
 #endif
 
+/**
+ * 功能: 由总线时钟和波特率得到 BRR
+ * 参数: pclk 外设时钟，baud 波特率
+ * 返回: BRR
+ * 说明: 四舍五入
+ */
+static uint16_t usart_baud_brr(uint32_t pclk, uint32_t baud)
+{
+    return (uint16_t)((pclk + (baud / 2U)) / baud);
+}
+
+/**
+ * 功能: 配置串口发送脚
+ * 参数: port 端口，pin 引脚
+ * 返回: None
+ * 说明: 复用推挽，上拉
+ */
+static void usart_pin_tx(GPIO_TypeDef *port, uint16_t pin)
+{
+    GPIO_InitTypeDef gpio_init_struct = {0};
+
+    gpio_init_struct.Pin = pin;
+    gpio_init_struct.Mode = GPIO_MODE_AF_PP;
+    gpio_init_struct.Pull = GPIO_PULLUP;
+    gpio_init_struct.Speed = GPIO_SPEED_FREQ_HIGH;
+    HAL_GPIO_Init(port, &gpio_init_struct);
+}
+
+/**
+ * 功能: 配置串口接收脚
+ * 参数: port 端口，pin 引脚
+ * 返回: None
+ * 说明: 上拉输入
+ */
+static void usart_pin_rx(GPIO_TypeDef *port, uint16_t pin)
+{
+    GPIO_InitTypeDef gpio_init_struct = {0};
+
+    gpio_init_struct.Pin = pin;
+    gpio_init_struct.Mode = GPIO_MODE_INPUT;
+    gpio_init_struct.Pull = GPIO_PULLUP;
+    HAL_GPIO_Init(port, &gpio_init_struct);
+}
+
+/**
+ * 功能: 按寄存器方式打开一路 8N1 串口，并开接收中断
+ * 参数: uart 串口，pclk 该串口的时钟，baud 波特率
+ * 返回: None
+ * 说明: None
+ */
+static void usart_core_init(USART_TypeDef *uart, uint32_t pclk, uint32_t baud)
+{
+    uart->CR1 = 0;
+    uart->BRR = usart_baud_brr(pclk, baud);
+    uart->CR2 = 0;
+    uart->CR3 = 0;
+    (void)uart->SR;
+    (void)uart->DR;
+    uart->CR1 = USART_CR1_TE | USART_CR1_RE | USART_CR1_RXNEIE | USART_CR1_UE;
+}
+
+/**
+ * 功能: 初始化串口2
+ * 参数: baudrate 波特率
+ * 返回: None
+ * 说明: OpenMV。中断服务在 link.c
+ */
+void Usart2_Init(uint32_t baudrate)
+{
+    USART2_TX_GPIO_CLK_ENABLE();
+    USART2_RX_GPIO_CLK_ENABLE();
+    USART2_UX_CLK_ENABLE();
+
+    usart_pin_tx(USART2_TX_GPIO_PORT, USART2_TX_GPIO_PIN);
+    usart_pin_rx(USART2_RX_GPIO_PORT, USART2_RX_GPIO_PIN);
+    usart_core_init(USART2_UX, HAL_RCC_GetPCLK1Freq(), baudrate);
+
+    HAL_NVIC_SetPriority(USART2_UX_IRQn, 1, 0);
+    HAL_NVIC_EnableIRQ(USART2_UX_IRQn);
+}
+
+/**
+ * 功能: 初始化串口3
+ * 参数: baudrate 波特率
+ * 返回: None
+ * 说明: 上位机。中断服务在 link.c
+ */
+void Usart3_Init(uint32_t baudrate)
+{
+    USART3_TX_GPIO_CLK_ENABLE();
+    USART3_RX_GPIO_CLK_ENABLE();
+    USART3_UX_CLK_ENABLE();
+
+    usart_pin_tx(USART3_TX_GPIO_PORT, USART3_TX_GPIO_PIN);
+    usart_pin_rx(USART3_RX_GPIO_PORT, USART3_RX_GPIO_PIN);
+    usart_core_init(USART3_UX, HAL_RCC_GetPCLK1Freq(), baudrate);
+
+    HAL_NVIC_SetPriority(USART3_UX_IRQn, 1, 0);
+    HAL_NVIC_EnableIRQ(USART3_UX_IRQn);
+}
 
 /*----------------------------------------------------------------------------*/
 /*          END OF FLIE         (C) COPYRIGHT yyyyyyyxz@gmail.com             */

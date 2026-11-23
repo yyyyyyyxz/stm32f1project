@@ -29,10 +29,11 @@
 #define OLED_SCL_PIN(pin, a)             HAL_GPIO_WritePin(OLED_SCL_GPIO_Port, (pin), (a))
 #define OLED_SDA_PIN(pin, a)             HAL_GPIO_WritePin(OLED_SDA_GPIO_Port, (pin), (a))
 
-#define OLED_SOFT_SCL_Pin                GPIO_PIN_6
-#define OLED_SOFT_SDA_Pin                GPIO_PIN_7
-#define OLED_HARD_SCL_Pin                GPIO_PIN_6
-#define OLED_HARD_SDA_Pin                GPIO_PIN_7
+/* 原理图 OLED 为 PB8/PB9。PB6/PB7 是后轮 TIM4，不能再当屏幕 */
+#define OLED_SOFT_SCL_Pin                GPIO_PIN_8
+#define OLED_SOFT_SDA_Pin                GPIO_PIN_9
+#define OLED_HARD_SCL_Pin                GPIO_PIN_8
+#define OLED_HARD_SDA_Pin                GPIO_PIN_9
 
 #define OLED_I2C1_CLK_ENABLE()           __HAL_RCC_I2C1_CLK_ENABLE()
 #define OLED_I2C2_CLK_ENABLE()           __HAL_RCC_I2C2_CLK_ENABLE()

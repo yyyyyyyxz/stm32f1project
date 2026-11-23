@@ -5,7 +5,7 @@
  * File name   : init.c
  * Description : 初始化代码管理
  * Author      : yyyyyyyxz@gmail.com
- * Update date : 2026.11.17
+ * Update date : 2026.11.23
  *-----------------------------------------------------------------------------
  * Note        :
  *
@@ -47,7 +47,7 @@ void System_Init(void)
  * 功能: 设备初始化
  * 参数: None
  * 返回: None
- * 说明: None
+ * 说明: 电机初始化会关掉 JTAG，舵机和超声波必须排在它后面
  */
 void Device_Init(void)
 {
@@ -57,6 +57,16 @@ void Device_Init(void)
 			Key_Init();                            /* KEY   Init */
 		if (DEVICE_USART)
 			Usart_Init(115200);			   						 /* USART Init */
+		if (DEVICE_USART2)
+			Usart2_Init(115200);                     /* USART2 Init */
+		if (DEVICE_USART3)
+			Usart3_Init(115200);                     /* USART3 Init */
+		if (DEVICE_MOTOR)
+			Motor_Init();                            /* MOTOR Init */
+		if (DEVICE_SERVO)
+			Servo_Init();                            /* SERVO Init */
+		if (DEVICE_SONAR)
+			Sonar_Init();                            /* SONAR Init */
 		if (DEVICE_OLED)
 		{
 			if (DEVICE_OLED_SOFT)
